@@ -1,0 +1,65 @@
+{
+    "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.base.schema.json",
+    "name": "C++ development envrionment",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash"
+            },
+            "extensions": [
+                "ms-vscode.cpptools-extension-pack",
+                "jeff-hykin.better-cpp-syntax",
+                "ms-python.vscode-pylance",
+                "ms-python.python",
+                "ms-azuretools.vscode-docker",
+                "mesonbuild.mesonbuild",
+                "surajbarkale.ninja",
+                "sonarsource.sonarlint-vscode",
+                "vscode-icons-team.vscode-icons",
+                "zxh404.vscode-proto3",
+                "bierner.emojisense",
+                "editorconfig.editorconfig",
+                "xaver.clang-format" // https://marketplace.visualstudio.com/items?itemName=xaver.clang-format
+            ]
+        }
+    },
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".",
+        // 'docker build' commands, which set the "ARG" variables in the Dockerfile
+        "args": {
+            "USERNAME": "${localEnv:USER}"
+        }
+    },
+    "runArgs": [
+        // enable if NVidia container kit installed
+        "--gpus",
+        "all",
+        "--network=host",
+        "--cap-add=SYS_PTRACE",
+        "--security-opt",
+        "seccomp=unconfined",
+        "-e",
+        "DISPLAY=${env:DISPLAY}",
+        "-v",
+        // requires running "git config --global [<user.email>|<user.name>] '<text>'" on the host
+        // https://stackoverflow.com/a/58644177
+        // run on the host
+        // rmdir ~/.gitconfig && touch ~/.gitconfig
+        // when things get weird with git
+        "${localEnv:HOME}/.gitconfig:/etc/gitconfig:ro",
+        "-v",
+        "/tmp/.X11-unix:/tmp/.X11-unix",
+        "-v",
+        "${localEnv:HOME}/.ssh:${localEnv:HOME}/.ssh:ro"
+    ],
+    "workspaceFolder": "/build",
+    // refer to: https://docs.docker.com/engine/reference/commandline/service_create/#add-bind-mounts-volumes-or-memory-filesystems
+    //           https://docs.docker.com/engine/reference/commandline/run/#add-bind-mounts-or-volumes-using-the---mount-flag
+    // 'workspaceMount' manages associating the root development folder outside the container with the internal container development folder (i.e. /build)
+    "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/build,consistency=consistent",
+    "updateRemoteUserUID": false,
+    "overrideCommand": true
+    // this is taken care of when containers are built
+    // "containerEnv": { "PATH": "${localEnv:PATH}:/usr/local/cuda-12.4/bin/:/opt/cmake/bin" }
+}
