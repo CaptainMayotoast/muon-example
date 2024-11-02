@@ -8,10 +8,10 @@ lib_static_example_example = static_library(
     'example_static',
     example_source,
     cpp_args: cpp_flags,
-    dependencies: [dep_list]
+    dependencies: [dep_list],
 )
 
 lib_static_example_example_dep = declare_dependency(
     link_with: lib_static_example_example,
-    include_directories: example_include
+    include_directories: example_include,
 )
